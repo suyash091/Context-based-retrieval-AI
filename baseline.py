@@ -2,6 +2,7 @@ import pandas as pd
 from metrics import evaluate_recall
 from models import random_model, TFIDFmodel
 import argparse
+import numpy as np
 
 
 if __name__ == '__main__':
