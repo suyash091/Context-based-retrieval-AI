@@ -1,6 +1,8 @@
 import pandas as pd
 from metrics import evaluate_recall
 from models import random_model, TFIDFmodel
+import argparse
+
 
 if __name__ == '__main__':
     my_parser = argparse.ArgumentParser(description='List the content of a folder')
