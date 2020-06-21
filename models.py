@@ -28,11 +28,13 @@ def random_model(context, utterances):
     return np.random.choice(len(utterances), 10, replace=False)
 
 class CABert:
-    def __init__(self,model_name):
+    def __init__(self,model_name,max_len):
+        self.max_len=max_len
         if model_name.lower()=='dnn':
             self.create_model = self.bertDNN_model
 
-    def bertDNN_model(self,max_len):
+    def bertDNN_model(self):
+        max_len=int(self.max_len)
         ## BERT encoder
         encoder = TFBertModel.from_pretrained("bert-base-uncased")
 
