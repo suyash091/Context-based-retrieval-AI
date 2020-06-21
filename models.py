@@ -32,7 +32,7 @@ class CABert:
         if model_name.lower()=='dnn':
             self.create_model = self.bertDNN_model
 
-    def bertDNN_model(self):
+    def bertDNN_model(self,max_len):
         ## BERT encoder
         encoder = TFBertModel.from_pretrained("bert-base-uncased")
 

@@ -2,9 +2,11 @@ import os
 import re
 import json
 import string
-
+import argparse
 from tokenizers import BertWordPieceTokenizer
+from transformers import BertTokenizer, TFBertModel, BertConfig
 from models import CABert
+import pandas as pd
 
 max_len = 512
 configuration = BertConfig()  # default paramters and configuration for BERT
@@ -33,8 +35,8 @@ if __name__ == '__main__':
                            type=str,
                            help='the path to test csv',
                            default='/build_dataset/src/test.csv')
-    my_parser.add_argument('bert',
-                           metavar='bert',
+    my_parser.add_argument('model_name',
+                           metavar='model_name',
                            type=str,
                            help='bert model name',
                            default='dnn')
@@ -53,8 +55,16 @@ if __name__ == '__main__':
                            type=str,
                            help='steps',
                            default=20)
+    my_parser.add_argument('max_len',
+                           metavar='max_len',
+                           type=str,
+                           help='max_len',
+                           default=512)
     args = my_parser.parse_args()
     df=pd.read_csv(args.train)
     CaModel=CABert(args.model_name)
-    CaModel.LoadModel(args.use_tpu)
-    CaModel.trainModel(df,args.epoch,args.steps)
+    print('run')
+    CaModel.LoadModel(eval(args.use_tpu))
+    print('run')
+    CaModel.trainModel(df,eval(args.epoch),eval(args.steps))
+    print('run')
