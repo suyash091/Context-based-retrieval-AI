@@ -1,5 +1,10 @@
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
+from bertprocess import create_inputs_targets, create_ubuntu_examples
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras import layers
+from transformers import BertTokenizer, TFBertModel, BertConfig
 
 class TFIDFmodel:
     def __init__(self):
@@ -21,3 +26,78 @@ class TFIDFmodel:
 
 def random_model(context, utterances):
     return np.random.choice(len(utterances), 10, replace=False)
+
+class CABert:
+    def __init__(self,model_name):
+        if model_name.lower()=='dnn':
+            self.create_model = self.bertDNN_model
+
+    def bertDNN_model(self):
+        ## BERT encoder
+        encoder = TFBertModel.from_pretrained("bert-base-uncased")
+
+        ## QA Model
+        input_ids = layers.Input(shape=(max_len,), dtype=tf.int32)
+        token_type_ids = layers.Input(shape=(max_len,), dtype=tf.int32)
+        attention_mask = layers.Input(shape=(max_len,), dtype=tf.int32)
+        embedding = encoder(
+            input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask
+        )[0]
+        Den0=layers.Dense(units = 256,activation ='relu')(embedding)
+        Den1=layers.Dense(units = 128,activation ='relu')(Den0)
+        Den2=layers.Dense(units = 64,activation ='relu')(Den1)
+        Drop1=layers.Dropout(0.1)(Den2)
+        label = layers.Dense(1, name="start_logit",activation ='sigmoid', use_bias=False)(Drop1)
+
+        model = keras.Model(
+            inputs=[input_ids, token_type_ids, attention_mask],
+            outputs=[label],
+        )
+        optimizer = keras.optimizers.Adam(lr=5e-5)
+        model.compile(optimizer= optimizer, loss='binary_crossentropy', metrics=['accuracy'])
+        return model
+
+    def LoadModel(self,use_tpu):
+        if use_tpu:
+            # Create distribution strategy
+            tpu = tf.distribute.cluster_resolver.TPUClusterResolver()
+            tf.config.experimental_connect_to_cluster(tpu)
+            tf.tpu.experimental.initialize_tpu_system(tpu)
+            strategy = tf.distribute.experimental.TPUStrategy(tpu)
+
+            # Create model
+            with strategy.scope():
+                self.model = self.create_model()
+        else:
+            self.model = self.create_model()
+        self.model.summary()
+
+    def trainModel(self,df,epoch,steps):
+        max_len=len(df)
+        for i in range(epoch):
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            print('Epoch: ' + str(i))
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            print('-----------------------------------------')
+            gc.collect()
+            for j in range(steps):
+                print('Training Bucket: ' + str(j))
+                train_squad_examples = create_ubuntu_examples(df[j * max_len/steps:(j + 1) * max_len/steps])
+                x_train, y_train = create_inputs_targets(train_squad_examples)
+                print(f"{len(train_squad_examples)} training points created.")
+                self.model.fit(
+                    x_train,
+                    y_train,
+                    epochs=1,  # For demonstration, 3 epochs are recommended
+                    verbose=2,
+                    batch_size=128,
+                )
+                del train_squad_examples, x_train, y_train
+        return model
+
+
