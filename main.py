@@ -7,6 +7,7 @@ from tokenizers import BertWordPieceTokenizer
 from transformers import BertTokenizer, TFBertModel, BertConfig
 from models import CABert
 import pandas as pd
+from metrics import evaluate
 
 max_len = 512
 configuration = BertConfig()  # default paramters and configuration for BERT
@@ -61,10 +62,11 @@ if __name__ == '__main__':
                            help='max_len',
                            default=512)
     args = my_parser.parse_args()
-    df=pd.read_csv(args.train)
-    CaModel=CABert(args.model_name)
+    df=pd.read_csv(args.test)
+    CaModel=CABert(args.model_name,args.max_len)
     print('run')
     CaModel.LoadModel(eval(args.use_tpu))
     print('run')
-    CaModel.trainModel(df,eval(args.epoch),eval(args.steps))
-    print('run')
+    model=CaModel.trainModel(df,eval(args.epoch),eval(args.steps))
+    test_df = pd.read_csv(args.test)
+    evaluate(test_df, model)

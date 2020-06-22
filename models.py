@@ -5,7 +5,7 @@ import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
 from transformers import BertTokenizer, TFBertModel, BertConfig
-
+import gc
 class TFIDFmodel:
     def __init__(self):
         self.vectorizer = TfidfVectorizer()
@@ -89,7 +89,7 @@ class CABert:
             gc.collect()
             for j in range(steps):
                 print('Training Bucket: ' + str(j))
-                train_squad_examples = create_ubuntu_examples(df[j * max_len/steps:(j + 1) * max_len/steps])
+                train_squad_examples = create_ubuntu_examples(df[j * int(max_len/steps):(j + 1) * int(max_len/steps)],int(self.max_len))
                 x_train, y_train = create_inputs_targets(train_squad_examples)
                 print(f"{len(train_squad_examples)} training points created.")
                 self.model.fit(
@@ -100,6 +100,6 @@ class CABert:
                     batch_size=128,
                 )
                 del train_squad_examples, x_train, y_train
-        return model
+        return self.model
 
 

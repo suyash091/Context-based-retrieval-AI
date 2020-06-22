@@ -1,16 +1,18 @@
 
 import numpy as np
-
+from tokenizers import BertWordPieceTokenizer
 class UbuntuStructure:
     def __init__(self, utterance, context, label):
         self.utterance = utterance
         self.context = context
         self.label = label
 
-    def preprocess(self):
+    def preprocess(self,max_len):
         utterance = self.utterance
         context = self.context
         label = self.label
+
+        tokenizer = BertWordPieceTokenizer("bert_base_uncased/vocab.txt", lowercase=True)
 
         # Tokenize context
         tokenized_context = tokenizer.encode(context)
@@ -45,14 +47,14 @@ class UbuntuStructure:
 
 
 
-def create_ubuntu_examples(df):
+def create_ubuntu_examples(df,max_len):
     ubuntu_examples = []
     i=0
     for index, row in df.iterrows():
                 ubuntu = UbuntuStructure(
                     row[1], row[0], row[2]
                 )
-                ubuntu.preprocess()
+                ubuntu.preprocess(max_len)
                 ubuntu_examples.append(ubuntu)
     return ubuntu_examples
 
@@ -77,3 +79,16 @@ def create_inputs_targets(ubuntu_examples):
     ]
     y = dataset_dict["label"]
     return x, y
+
+
+def create_ubuntu_testexamples(df,col):
+    ubuntu = []
+    for index, row in df.iterrows():
+                ubuntu = UbuntuStructure(
+                    row[col+1], row[0], 1
+                )
+                ubuntu.preprocess(512)
+                ubuntu.append(ubuntu)
+    return ubuntu
+
+
