@@ -81,14 +81,14 @@ def create_inputs_targets(ubuntu_examples):
     return x, y
 
 
-def create_ubuntu_testexamples(df,col):
-    ubuntu = []
+def create_ubuntu_testexamples(df,col,max_len):
+    ubuntu_examples = []
     for index, row in df.iterrows():
                 ubuntu = UbuntuStructure(
                     row[col+1], row[0], 1
                 )
-                ubuntu.preprocess(512)
-                ubuntu.append(ubuntu)
-    return ubuntu
+                ubuntu.preprocess(max_len)
+                ubuntu_examples.append(ubuntu)
+    return ubuntu_examples
 
 

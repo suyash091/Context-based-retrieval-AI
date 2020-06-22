@@ -6,6 +6,7 @@ from tensorflow import keras
 from tensorflow.keras import layers
 from transformers import BertTokenizer, TFBertModel, BertConfig
 import gc
+
 class TFIDFmodel:
     def __init__(self):
         self.vectorizer = TfidfVectorizer()
@@ -31,6 +32,7 @@ class CABert:
     def __init__(self,model_name,max_len):
         self.max_len=max_len
         if model_name.lower()=='dnn':
+            print("Creating DNN Model")
             self.create_model = self.bertDNN_model
 
     def bertDNN_model(self):
@@ -68,10 +70,15 @@ class CABert:
             strategy = tf.distribute.experimental.TPUStrategy(tpu)
 
             # Create model
+            print("Loading model on a TPU")
             with strategy.scope():
                 self.model = self.create_model()
         else:
+
+            print("Loading model on a CPU/GPU")
             self.model = self.create_model()
+
+        print("Model's Architecture:")
         self.model.summary()
 
     def trainModel(self,df,epoch,steps):
@@ -88,10 +95,10 @@ class CABert:
             print('-----------------------------------------')
             gc.collect()
             for j in range(steps):
-                print('Training Bucket: ' + str(j))
-                train_squad_examples = create_ubuntu_examples(df[j * int(max_len/steps):(j + 1) * int(max_len/steps)],int(self.max_len))
-                x_train, y_train = create_inputs_targets(train_squad_examples)
-                print(f"{len(train_squad_examples)} training points created.")
+                print('Training Bucket: ' + str(j+1))
+                train_ubuntu_examples = create_ubuntu_examples(df[j * int(max_len/steps):(j + 1) * int(max_len/steps)],int(self.max_len))
+                x_train, y_train = create_inputs_targets(train_ubuntu_examples)
+                print(f"{len(train_ubuntu_examples)} training points created.")
                 self.model.fit(
                     x_train,
                     y_train,
@@ -99,7 +106,7 @@ class CABert:
                     verbose=2,
                     batch_size=128,
                 )
-                del train_squad_examples, x_train, y_train
+                del train_ubuntu_examples, x_train, y_train
         return self.model
 
 
