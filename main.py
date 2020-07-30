@@ -62,7 +62,7 @@ if __name__ == '__main__':
                            help='max_len',
                            default=512)
     args = my_parser.parse_args()
-    df=pd.read_csv(args.test)
+    df=pd.read_csv(args.train)
     CaModel=CABert(args.model_name,args.max_len)
     CaModel.LoadModel(eval(args.use_tpu))
     model=CaModel.trainModel(df,eval(args.epoch),eval(args.steps))
