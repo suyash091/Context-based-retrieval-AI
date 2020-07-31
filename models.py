@@ -104,7 +104,7 @@ class CABert:
                     y_train,
                     epochs=1,  # For demonstration, 3 epochs are recommended
                     verbose=2,
-                    batch_size=128,
+                    batch_size=100,
                 )
                 del train_ubuntu_examples, x_train, y_train
         return self.model
