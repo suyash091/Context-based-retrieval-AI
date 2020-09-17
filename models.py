@@ -38,7 +38,7 @@ class CABert:
     def bertDNN_model(self):
         max_len=int(self.max_len)
         ## BERT encoder
-        encoder = TFBertModel.from_pretrained("bert-base-uncased")
+        encoder = TFBertModel.from_pretrained("bert-large-uncased")
 
         ## QA Model
         input_ids = layers.Input(shape=(max_len,), dtype=tf.int32)
