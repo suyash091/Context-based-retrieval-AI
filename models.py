@@ -108,8 +108,10 @@ class CABert:
                 self.model.fit(
                     x_train,
                     y_train,
+                    validation_split = 0.1,
                     epochs=1,  # For demonstration, 3 epochs are recommended
                     verbose=2,
+                    shuffle = False,
                     batch_size=100,
                 )
                 del train_ubuntu_examples, x_train, y_train
