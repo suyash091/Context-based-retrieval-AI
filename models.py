@@ -38,7 +38,7 @@ class CABert:
     def bertDNN_model(self):
         max_len=int(self.max_len)
         ## BERT encoder
-        encoder = TFBertModel.from_pretrained("bert-large-uncased")
+        encoder = TFBertModel.from_pretrained("bert-base-uncased")
 
         ## QA Model
         input_ids = layers.Input(shape=(max_len,), dtype=tf.int32)
@@ -48,9 +48,9 @@ class CABert:
             input_ids, token_type_ids=token_type_ids, attention_mask=attention_mask
         )[0]
         Den0=layers.Dense(units = 256,activation ='relu')(embedding)
-        #Den1=layers.Dense(units = 128,activation ='relu')(Den0)
-        #Den2=layers.Dense(units = 64,activation ='relu')(Den1)
-        Drop1=layers.Dropout(0.2)(Den0)
+        Den1=layers.Dense(units = 128,activation ='relu')(Den0)
+        Den2=layers.Dense(units = 64,activation ='relu')(Den1)
+        Drop1=layers.Dropout(0.2)(Den2)
         label = layers.Dense(1, name="start_logit",activation ='sigmoid', use_bias=False)(Drop1)
 
         model = keras.Model(
@@ -96,9 +96,12 @@ class CABert:
             gc.collect()
             for j in range(steps):
                 print('Training Bucket: ' + str(j+1))
-                if j%int(0.33*steps)==0:
+                if j%int(0.33*steps)==0 and j!=0:
                     print('saving model')
-                    self.model.save('/content/model.h5')
+                    self.model.save_weights('/content/model.h5')
+                elif j==0 and i==0:
+                    print('Loading model')
+                    self.model.load_weights('/content/model.h5',by_name=True)                    
                 train_ubuntu_examples = create_ubuntu_examples(df[j * int(max_len/steps):(j + 1) * int(max_len/steps)],int(self.max_len))
                 x_train, y_train = create_inputs_targets(train_ubuntu_examples)
                 print(f"{len(train_ubuntu_examples)} training points created.")
