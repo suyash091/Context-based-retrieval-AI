@@ -83,6 +83,7 @@ class CABert:
 
     def trainModel(self,df,epoch,steps):
         max_len=len(df)
+        self.model.load_weights('/content/model.h5',by_name=True)    
         for i in range(epoch):
             print('-----------------------------------------')
             print('-----------------------------------------')
@@ -99,9 +100,6 @@ class CABert:
                 if j%int(0.33*steps)==0 and j!=0:
                     print('saving model')
                     self.model.save_weights('/content/model.h5')
-                elif j==0 and i==0:
-                    print('Loading model')
-                    self.model.load_weights('/content/model.h5',by_name=True)                    
                 train_ubuntu_examples = create_ubuntu_examples(df[j * int(max_len/steps):(j + 1) * int(max_len/steps)],int(self.max_len))
                 x_train, y_train = create_inputs_targets(train_ubuntu_examples)
                 print(f"{len(train_ubuntu_examples)} training points created.")
