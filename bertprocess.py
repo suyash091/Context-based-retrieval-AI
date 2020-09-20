@@ -11,6 +11,7 @@ class UbuntuStructure:
         utterance = self.utterance
         context = self.context
         label = self.label
+        max_len=int(max_len) 
 
         tokenizer = BertWordPieceTokenizer("bert_base_uncased/vocab.txt", lowercase=True)
 
